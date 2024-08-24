@@ -13,6 +13,7 @@ const Article = mongoose.model("Article", {
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
+    ref: "User",
   },
 });
 

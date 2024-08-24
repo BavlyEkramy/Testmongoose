@@ -57,6 +57,12 @@ const userSchema = new mongoose.Schema({
   ],
 });
 
+userSchema.virtual("articles", {
+  ref: "Article",
+  localField: "_id",
+  foreignField: "owner",
+});
+
 userSchema.pre("save", async function () {
   const user = this;
 

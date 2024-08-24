@@ -16,9 +16,8 @@ router.post("/articles", auth, async (req, res) => {
 
 router.get("/articles", auth, async (req, res) => {
   try {
-    const articles = await Article.find({ owner: req.user._id });
-    // const articles = await Article.find({});
-    res.status(200).send(articles);
+    await req.user.populate("articles");
+    res.status(200).send(req.user.articles);
   } catch (e) {
     res.status(400).send(e);
   }
@@ -31,6 +30,7 @@ router.get("/articles/:id", auth, async (req, res) => {
     if (!article) {
       return res.status(400).send("This article does not belong to you");
     }
+    await article.populate("owner");
     res.status(200).send(article);
   } catch (e) {
     res.status(400).send(e);
@@ -63,7 +63,7 @@ router.delete("/articles/:id", auth, async (req, res) => {
   try {
     const _id = req.params.id;
     const article = await Article.findOneAndDelete({
-      _id,
+      _id: id,
       owner: req.user._id,
     });
     if (!article) {
