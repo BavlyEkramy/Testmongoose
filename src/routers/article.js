@@ -16,7 +16,7 @@ router.post("/articles", auth, async (req, res) => {
 
 router.get("/articles", auth, async (req, res) => {
   try {
-      const articles = await Article.find({ owner: req.user._id });
+    const articles = await Article.find({ owner: req.user._id });
     // const articles = await Article.find({});
     res.status(200).send(articles);
   } catch (e) {
@@ -40,10 +40,14 @@ router.get("/articles/:id", auth, async (req, res) => {
 router.patch("/articles/:id", auth, async (req, res) => {
   try {
     const _id = req.params.id;
-    const article = await Article.findByIdAndUpdate({ _id }, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const article = await Article.findOneAndUpdate(
+      { _id, owner: req.user._id },
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!article) {
       return res.status(404).send("No article");
@@ -58,9 +62,12 @@ router.patch("/articles/:id", auth, async (req, res) => {
 router.delete("/articles/:id", auth, async (req, res) => {
   try {
     const _id = req.params.id;
-    const article = await Article.findByIdAndDelete(_id);
+    const article = await Article.findOneAndDelete({
+      _id,
+      owner: req.user._id,
+    });
     if (!article) {
-     res.status(400).send("This article does not belong to you");
+      res.status(400).send("This article does not belong to you");
     }
     res.status(200).send(article);
   } catch (e) {
